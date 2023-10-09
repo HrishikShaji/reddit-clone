@@ -68,10 +68,10 @@ creatorId String?
 Creator User? @relation("CreatedBy",fields: [creatorId],references: [id])
 subscribers Subscription[]
 
-@@index([name])
 }
 
 model Subscription {
+id            String  @map("_id")  @id @default(cuid())
 user User @relation(fields: [userId],references: [id])
 userId String
 subreddit Subreddit @relation(fields: [subredditId],references: [id])
@@ -118,21 +118,21 @@ DOWN
 }
 
 model Vote {
-user User
+id            String  @map("_id")  @id @default(cuid())
+user User @relation(fields: [userId],references: [id])
 userId String
-post Post
+post Post @relation(fields: [postId],references: [id],onDelete: Cascade)
 postId String
 type VoteType
 
-@@id([userId,postId])
 }
 
 model CommentVote {
+id            String  @map("_id")  @id @default(cuid())
 user User @relation(fields: [userId],references: [id])
 userId String
 comment Comment @relation(fields: [commentId],references: [id])
 commentId String
 type VoteType
 
-@@id([userId,commentId])
 }
