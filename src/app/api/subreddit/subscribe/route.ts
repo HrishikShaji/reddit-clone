@@ -6,7 +6,7 @@ import { z } from "zod";
 export async function POST(req: Request) {
   try {
     const session = await getAuthSession();
-
+    console.log("its here");
     if (!session?.user) {
       return new Response("Unauthorized", { status: 401 });
     }
@@ -21,27 +21,12 @@ export async function POST(req: Request) {
       },
     });
 
-    if (!subscriptionExists) {
-      return new Response("you are not subscribed to this subreddit", {
-        status: 400,
-      });
+    if (subscriptionExists) {
+      return new Response("you are already subscribed", { status: 400 });
     }
 
-    const subreddit = await db.subreddit.findFirst({
-      where: {
-        id: subredditId,
-        creatorId: session.user.id,
-      },
-    });
-
-    if (subreddit) {
-      return new Response("You cant unsubscribe from your own subreddit", {
-        status: 400,
-      });
-    }
-
-    await db.subscription.delete({
-      where: {
+    await db.subscription.create({
+      data: {
         subredditId,
         userId: session.user.id,
       },
@@ -52,6 +37,6 @@ export async function POST(req: Request) {
       return new Response(error.message, { status: 422 });
     }
 
-    return new Response("Could not unsubscribe", { status: 500 });
+    return new Response("Could not create subreddit", { status: 500 });
   }
 }
