@@ -1,6 +1,8 @@
 import { getAuthSession } from "@/lib/auth";
 import { db } from "@/lib/db";
 import { notFound } from "next/navigation";
+import { format } from "date-fns";
+import SubscribeLeaveToggle from "@/components/SubscribeLeaveToggle";
 
 const Layout = async ({
   children,
@@ -53,15 +55,31 @@ const Layout = async ({
         <div className="grid grid-cols-1 md:grid-cols-3 gap-y-4 md:gap-x-4 py-6">
           <div className="flex flex-col col-span-2 space-y-6">{children}</div>
           <div className="hidden md:block overflow-hidden h-fit rounded-lg border border-gray-200 order-first md:order-last">
-            <div className="px-6 py-4 ">About r/</div>
+            <div className="px-6 py-4 ">About r/{subreddit.name}</div>
           </div>
           <dl className="divide-y divide-gray-100 px-6 py-4 text-sm leading-sm bg-white">
             <div className="flex ijustify-between gap-x-4 py-3">
               <dt className="text-gray-700">Created</dt>
-              <dt className="text-gray-700">
-                <time dateTime={subreddit.createdAt.toDateString()}></time>
-              </dt>
+              <dd className="text-gray-700">
+                <time dateTime={subreddit.createdAt.toDateString()}>
+                  {format(subreddit.createdAt, "MMMM d,yyyy")}
+                </time>
+              </dd>
             </div>
+            <div className="flex justify-between gap-x-4 py-3">
+              <dt className="text-gray-700">Members</dt>
+              <dd className="text-gray-700">
+                <div className="text-gray-900">{memberCount}</div>
+              </dd>
+            </div>
+            {subreddit.creatorId === session?.user.id ? (
+              <div className="flex justify-between gap-x-4 py-3">
+                <p className="text-gray-500 ">You Created this community</p>
+              </div>
+            ) : null}
+            {subreddit.creatorId !== session?.user.id ? (
+              <SubscribeLeaveToggle />
+            ) : null}
           </dl>
         </div>
       </div>
