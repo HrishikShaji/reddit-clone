@@ -31,7 +31,7 @@ const Page = async ({ params }: PageProps) => {
         </div>
       </div>
       {/*form*/}
-      <Editor />
+      <Editor subredditId={subreddit.id} />
       <div className="wp-full flex justify-end">
         <Button type="submit" className="w-full" form="subreddit-post-form">
           Post
