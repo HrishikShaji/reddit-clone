@@ -12,7 +12,6 @@ export async function POST(req: Request) {
     }
 
     const body = await req.json();
-
     const { subredditId, title, content } = PostValidator.parse(body);
     const subscriptionExists = await db.subscription.findFirst({
       where: {
