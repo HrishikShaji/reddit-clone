@@ -4,7 +4,7 @@ import TextareaAutosize from "react-textarea-autosize";
 import { useForm } from "react-hook-form";
 import { PostCreationRequest, PostValidator } from "@/lib/validators/post";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useCallback, useRef } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import EditorJS from "@editorjs/editorjs";
 import { uploadFiles } from "@/lib/uploadthing";
 
@@ -27,6 +27,13 @@ export const Editor: React.FC<EditorProps> = ({ subredditId }) => {
   });
 
   const ref = useRef<EditorJS>();
+  const [isMounted, setIsMounted] = useState<boolean>(false);
+
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      setIsMounted(true);
+    }
+  }, []);
 
   const initializedEditor = useCallback(async () => {
     const EditorJS = (await import("@editorjs/editorjs")).default;
@@ -61,11 +68,13 @@ export const Editor: React.FC<EditorProps> = ({ subredditId }) => {
             config: {
               uploader: {
                 async uploadByFile(file: File) {
-                  const { res } = await uploadFiles([file], "imageUploader");
+                  console.log(file);
+                  const res = await uploadFiles([file], "imageUploader");
+                  console.log(res[0]);
                   return {
                     success: 1,
                     file: {
-                      url: res.fileUrl,
+                      url: res[0].fileUrl,
                     },
                   };
                 },
@@ -82,6 +91,18 @@ export const Editor: React.FC<EditorProps> = ({ subredditId }) => {
     }
   }, []);
 
+  useEffect(() => {
+    const init = async () => {
+      await initializedEditor();
+
+      setTimeout(() => {});
+    };
+    if (!isMounted) {
+      init();
+      return () => {};
+    }
+  }, [isMounted, initializedEditor]);
+
   return (
     <div className="w-full p-4 bg-zinc-50 rounded-lg border border-zinc-200">
       <form id="subreddit-post-form" className="w-fit" onSubmit={() => {}}>
@@ -90,6 +111,7 @@ export const Editor: React.FC<EditorProps> = ({ subredditId }) => {
             placeholder="title"
             className="w-full resize-none appearance-none overflow-hidden bg-transparent text-5xl font-bold focus:outline-none"
           />
+          <div id="editor" className="min-h-[500px]"></div>
         </div>
       </form>
     </div>
