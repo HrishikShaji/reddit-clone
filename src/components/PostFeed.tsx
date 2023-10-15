@@ -1,3 +1,5 @@
+"use client";
+
 import { INFINITE_SCROLLING_PAGINATION_RESULTS } from "@/config";
 import { ExtendedPost } from "@/types/db";
 import { useIntersection } from "@mantine/hooks";
@@ -8,7 +10,7 @@ import { useRef } from "react";
 import { Post } from "./Post";
 
 interface PostFeedProps {
-  initialPosts: ExtendedPost;
+  initialPosts: ExtendedPost[];
   subredditName?: string;
 }
 
@@ -23,7 +25,7 @@ export const PostFeed: React.FC<PostFeedProps> = ({
     threshold: 1,
   });
 
-  const { data, status } = useSession();
+  const { data: session } = useSession();
 
   const { data, fetchNextPage, isFetchingNextPage } = useInfiniteQuery(
     ["infinite-query"],
@@ -53,7 +55,7 @@ export const PostFeed: React.FC<PostFeedProps> = ({
           return acc;
         }, 0);
         const currentVote = post.votes.find(
-          (vote) => vote.userId === data?.user.id,
+          (vote) => vote.userId === session?.user.id,
         );
         if (index === posts.length - 1) {
           return (
