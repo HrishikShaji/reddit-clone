@@ -4,6 +4,7 @@ import { Post as PostType, User, Vote } from "@prisma/client";
 import { formatTimeToNow } from "../lib/utils";
 import { useRef } from "react";
 import { MessageSquare } from "lucide-react";
+import { EditorOutput } from "./EditorOutput";
 
 interface PostProps {
   subredditName: string;
@@ -50,6 +51,7 @@ export const Post: React.FC<PostProps> = ({
             className="relative text-sm max-h-40 w-full overflow-clip"
             ref={pRef}
           >
+            <EditorOutput content={post.content} />
             {pRef.current?.clientHeight === 160 ? (
               <div className="absolute bottom-0 left-0 h-24 w-full bg-gradient-to-t from-white to-transparent" />
             ) : null}
