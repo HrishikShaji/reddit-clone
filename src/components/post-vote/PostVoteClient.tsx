@@ -8,6 +8,8 @@ import { Button } from "../ui/Button";
 import { ArrowBigUp } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useMutation } from "@tanstack/react-query";
+import { PostVoteRequest } from "@/lib/validators/vote";
+import axios from "axios";
 
 interface PostVoteClientProps {
   postId: string;
@@ -31,8 +33,13 @@ const PostVoteClient: React.FC<PostVoteClientProps> = ({
   }, [initialVote]);
 
   const {} = useMutation({
-    mutationFn: async (type: VoteType) => {
-      const payload = {};
+    mutationFn: async (voteType: VoteType) => {
+      const payload: PostVoteRequest = {
+        postId,
+        voteType,
+      };
+
+      await axios.patch("/api/subreddit/post/vote", payload);
     },
   });
 
