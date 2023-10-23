@@ -37,7 +37,7 @@ export async function PATCH(req: Request) {
 
     if (existingVote) {
       if (existingVote.type === voteType) {
-        await db.vote.delete({
+        await db.vote.deleteMany({
           where: {
             userId: session.user.id,
             postId: postId,
@@ -45,7 +45,7 @@ export async function PATCH(req: Request) {
         });
         return new Response("OK");
       }
-      await db.vote.update({
+      await db.vote.updateMany({
         where: {
           postId,
           userId: session.user.id,
