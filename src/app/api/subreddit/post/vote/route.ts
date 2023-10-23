@@ -1,6 +1,9 @@
 import { getAuthSession } from "@/lib/auth";
 import { db } from "@/lib/db";
 import { PostVoteValidator } from "@/lib/validators/vote";
+import { CachedPost } from "@/types/redis";
+
+const CACHE_AFTER_UPVOTES = 1;
 
 export async function PATCH(req: Request) {
   try {
@@ -54,6 +57,23 @@ export async function PATCH(req: Request) {
           type: voteType,
         },
       });
+
+      const votesAmt = post.votes.reduce((acc, vote) => {
+        if (vote.type === "UP") return acc + 1;
+        if (vote.type === "DOWN") return acc - 1;
+        return acc;
+      }, 0);
+
+      if (votesAmt >= CACHE_AFTER_UPVOTES) {
+        const cachePayload: CachedPost = {
+          authorUsername: post.author.username ?? "",
+          content: JSON.stringify(post.content),
+          id: post.id,
+          title: post.title,
+          currentVote: voteType,
+          createdAt: post.createdAt,
+        };
+      }
     }
   } catch (error) {}
 }
