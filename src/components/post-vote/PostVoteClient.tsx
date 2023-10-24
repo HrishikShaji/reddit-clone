@@ -9,7 +9,8 @@ import { ArrowBigDown, ArrowBigUp } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useMutation } from "@tanstack/react-query";
 import { PostVoteRequest } from "@/lib/validators/vote";
-import axios from "axios";
+import axios, { AxiosError } from "axios";
+import { toast } from "@/hooks/use-toast";
 
 interface PostVoteClientProps {
   postId: string;
@@ -40,6 +41,36 @@ const PostVoteClient: React.FC<PostVoteClientProps> = ({
       };
 
       await axios.patch("/api/subreddit/post/vote", payload);
+    },
+    onError: (err, voteType) => {
+      if (voteType === "UP") setVotesAmt((prev) => prev - 1);
+      else setVotesAmt((prev) => prev + 1);
+
+      setCurretVote(prevVote);
+
+      if (err instanceof AxiosError) {
+        if (err.response?.status === 401) {
+          return loginToast();
+        }
+      }
+
+      return toast({
+        title: "Something went wrong",
+        description: "Vote was unsuccessfull",
+        variant: "destructive",
+      });
+    },
+    onMutate: (type: VoteType) => {
+      if (currentVote === type) {
+        setCurretVote(undefined);
+        if (type === "UP") setVotesAmt((prev) => prev - 1);
+        else if (type === "DOWN") setVotesAmt((prev) => prev + 1);
+      } else {
+        setCurretVote(type);
+        if (type === "UP") setVotesAmt((prev) => prev + (currentVote ? 2 : 1));
+        else if (type === "DOWN")
+          setVotesAmt((prev) => prev - (currentVote ? 2 : 1));
+      }
     },
   });
 
